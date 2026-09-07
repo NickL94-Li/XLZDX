@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MCE · 小罗智多星使用复盘看板 2026-08</title>
+<style>
+:root{
+  --bg:#EEF1F8;--card:#fff;--navy:#0C2850;--blue:#1454B8;
+  --g:#196E3C;--gb:#2EA856;--gbg:#EBF8F2;
+  --a:#A05208;--ab:#D4780F;--abg:#FEF3E2;
+  --r:#B31818;--rb:#E03A3A;--rbg:#FEF1F1;
+  --pur:#7240C8;--purbg:#F5F0FF;
+  --teal:#0D7E7E;--tealbg:#E6F5F5;
+  --s:#576070;--sbg:#EEF1F5;
+  --mut:#6B7A90;--bdr:#E0E7F0;
+  --sh:0 1px 3px rgba(12,40,80,.06),0 4px 18px rgba(12,40,80,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:#1a2535;font-size:14px}
+.hdr{background:linear-gradient(135deg,#0C2850 0%,#1454B8 100%);color:#fff;padding:24px 0 20px}
+.hdr-inner{max-width:1300px;margin:0 auto;padding:0 28px}
+.hdr-title{font-size:22px;font-weight:700;letter-spacing:.5px;margin-bottom:6px}
+.hdr-meta{font-size:12px;opacity:.7}
+.tab-bar{background:var(--card);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(12,40,80,.08)}
+.tab-bar-inner{max-width:1300px;margin:0 auto;padding:0 28px;display:flex;gap:0}
+.tbtn{background:none;border:none;border-bottom:2px solid transparent;padding:13px 18px;font-size:13px;font-family:inherit;color:var(--mut);cursor:pointer;transition:color .15s;margin-bottom:-1px;white-space:nowrap}
+.tbtn:hover{color:var(--navy)}
+.tbtn.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.tbtn.teal-tab{color:var(--teal)}
+.tbtn.teal-tab.active{color:var(--teal);border-bottom-color:var(--teal)}
+.tab-divider{width:1px;background:var(--bdr);margin:10px 8px}
+.tab-content{max-width:1300px;margin:0 auto;padding:28px 28px 40px}
+.hidden{display:none!important}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:26px}
+.kpi-card{background:var(--card);border-radius:10px;box-shadow:var(--sh);padding:20px 18px;position:relative;overflow:hidden}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-card.c-blue::before{background:var(--blue)}
+.kpi-card.c-green::before{background:var(--gb)}
+.kpi-card.c-amber::before{background:var(--ab)}
+.kpi-card.c-pur::before{background:var(--pur)}
+.kpi-card.c-navy::before{background:var(--navy)}
+.kpi-card.c-teal::before{background:var(--teal)}
+.kpi-label{font-size:11px;color:var(--mut);margin-bottom:8px;letter-spacing:.3px}
+.kpi-val{font-size:26px;font-weight:700;color:var(--navy);line-height:1.1}
+.kpi-val em{font-size:13px;font-weight:500;color:var(--mut);font-style:normal}
+.kpi-sub{font-size:11px;color:var(--mut);margin-top:7px}
+.kpi-sub.warn{color:var(--ab)}
+.kpi-sub2{font-size:11px;color:var(--pur);margin-top:4px}
+.sec-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-title::before{content:'';display:inline-block;width:3px;height:15px;background:var(--blue);border-radius:2px;flex-shrink:0}
+.sec-title.teal::before{background:var(--teal)}
+.card-wrap{background:var(--card);border-radius:10px;box-shadow:var(--sh);padding:22px 24px;margin-bottom:24px}
+.nat-table{width:100%;border-collapse:collapse;font-size:13px}
+.nat-table th{text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--bdr);color:var(--mut);font-weight:500;font-size:11px;white-space:nowrap;letter-spacing:.3px;cursor:help}
+.nat-table th[title]:hover{color:var(--blue)}
+.nat-table td{padding:10px 10px;border-bottom:1px solid #F0F4FA;vertical-align:middle}
+.nat-table tr.clickable{cursor:pointer}
+.nat-table tr.clickable:hover td{background:#F5F8FF}
+.nat-table tr.subtotal td{background:#F0F4FA;font-weight:600;color:var(--navy)}
+.nat-table tr.hq td{background:#FAFBFD}
+.nat-table tr.total td{background:var(--navy);color:#fff;font-weight:700}
+.nat-table tr.total .rbadge{background:rgba(255,255,255,.18);color:#fff}
+.nat-table tr.sep-row td{padding:3px;border:none;background:var(--bg)}
+.nat-table .c-g{color:var(--g);font-weight:600}
+.nat-table .c-a{color:var(--a);font-weight:600}
+.nat-table .c-r{color:var(--r);font-weight:600}
+.nat-table .c-s{color:var(--s)}
+.nat-table .c-teal{color:var(--teal);font-style:italic;font-size:12px}
+.rbadge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:12px;font-weight:700}
+.rg{background:var(--gbg);color:var(--g)}
+.ra{background:var(--abg);color:var(--a)}
+.rr{background:var(--rbg);color:var(--r)}
+.rs{background:var(--sbg);color:var(--s)}
+.tier{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.t-act{background:var(--gbg);color:var(--g)}
+.t-wake{background:var(--abg);color:var(--a)}
+.t-dead{background:var(--purbg);color:var(--pur)}
+.t-stop{background:var(--sbg);color:var(--s)}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.chart-card{background:var(--card);border-radius:10px;box-shadow:var(--sh);padding:20px 22px}
+.chart-card-wide{background:var(--card);border-radius:10px;box-shadow:var(--sh);padding:20px 28px;margin-bottom:24px}
+.chart-title{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:14px}
+.fbar-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fbar-label{width:68px;font-size:13px;color:var(--mut);text-align:right;flex-shrink:0}
+.fbar-bg{flex:1;background:#EEF1F8;border-radius:5px;height:10px}
+.fbar-fill{height:10px;border-radius:5px}
+.fbar-val{font-size:13px;color:var(--mut);width:120px;flex-shrink:0;text-align:right}
+.fbar-row{margin-bottom:16px}
+.reg-hdr{display:flex;align-items:center;gap:14px;margin-bottom:22px;flex-wrap:wrap}
+.reg-title{font-size:20px;font-weight:700;color:var(--navy)}
+.reg-head-lbl{font-size:13px;color:var(--mut)}
+.reg-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.acc-table{width:100%;border-collapse:collapse;font-size:13px}
+.acc-table th{text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--bdr);color:var(--mut);font-weight:500;font-size:11px;letter-spacing:.3px;cursor:help}
+.acc-table th[title]:hover{color:var(--blue)}
+.acc-table td{padding:10px 10px;border-bottom:1px solid #F0F4FA;vertical-align:middle}
+.acc-table tr:last-child td{border-bottom:none}
+.acc-table tr.stopped td{color:#aaa;background:#FAFBFC}
+.hf-badge{display:inline-block;background:#FFF3E0;color:#E65100;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px;vertical-align:middle}
+.dep-warn{color:var(--ab);font-size:11px;margin-left:3px}
+.stopped-mark{display:inline-block;background:var(--sbg);color:var(--s);font-size:10px;padding:1px 5px;border-radius:4px;margin-left:4px}
+.dual-badge{display:inline-block;background:var(--tealbg);color:var(--teal);font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;margin-left:4px}
+.xq-val{color:var(--pur);font-style:italic}
+.sb-hdr{background:linear-gradient(135deg,#0D5050 0%,#0D7E7E 100%);color:#fff;border-radius:10px;padding:20px 24px;margin-bottom:22px}
+.sb-hdr-title{font-size:18px;font-weight:700;margin-bottom:6px}
+.sb-hdr-desc{font-size:12px;opacity:.75;line-height:1.6}
+.sb-table{width:100%;border-collapse:collapse;font-size:13px}
+.sb-table th{text-align:left;padding:8px 12px;border-bottom:1.5px solid var(--bdr);color:var(--mut);font-weight:500;font-size:11px;letter-spacing:.3px}
+.sb-table td{padding:12px;border-bottom:1px solid #F0F4FA;vertical-align:middle}
+.sb-table tr:last-child td{border-bottom:none}
+.footnote{text-align:center;color:var(--mut);font-size:11px;margin-top:24px;line-height:2}
+/* tooltip */
+[title]{position:relative}
+/* 变化分析 */
+.diff-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.diff-table{width:100%;border-collapse:collapse;font-size:12px}
+.diff-table th{text-align:center;padding:8px 8px;border-bottom:1.5px solid var(--bdr);color:var(--mut);font-weight:500;font-size:11px;letter-spacing:.3px;background:#F8FAFB}
+.diff-table th.th-left{text-align:left}
+.diff-table td{padding:9px 8px;border-bottom:1px solid #F0F4FA;text-align:center;vertical-align:middle}
+.diff-table td.td-left{text-align:left;font-weight:600}
+.diff-table tr.subtotal td{background:#F0F4FA;font-weight:600}
+.diff-table tr.total td{background:var(--navy);color:#fff;font-weight:700}
+.up{color:var(--g);font-weight:700}
+.dn{color:var(--r);font-weight:700}
+.nc{color:var(--mut)}
+.delta{font-size:12px}
+.change-sec{background:var(--card);border-radius:10px;box-shadow:var(--sh);padding:20px 24px;margin-bottom:22px}
+/* trend tooltip */
+.trend-tip{position:fixed;background:rgba(12,40,80,.88);color:#fff;font-size:12px;padding:6px 10px;border-radius:6px;pointer-events:none;display:none;z-index:999;white-space:nowrap}
+
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-title">MCE &middot; 小罗智多星使用复盘看板</div>
+    <div class="hdr-meta">数据截至 2026-08-31 &nbsp;&middot;&nbsp; 统计区间 2025-01 — 2026-08 &nbsp;&middot;&nbsp; 活跃口径：实际功能操作（非登录，已排除「学习星球」）</div>
+  </div>
+</header>
+<div class="tab-bar">
+  <div class="tab-bar-inner">
+    <button class="tbtn active" data-tab="总览"  onclick="switchTab(this,'总览')">总览</button>
+    <button class="tbtn" data-tab="东区"   onclick="switchTab(this,'东区')">东区</button>
+    <button class="tbtn" data-tab="南区"   onclick="switchTab(this,'南区')">南区</button>
+    <button class="tbtn" data-tab="中区"   onclick="switchTab(this,'中区')">中区</button>
+    <button class="tbtn" data-tab="北一区" onclick="switchTab(this,'北一区')">北一区</button>
+    <button class="tbtn" data-tab="北二区" onclick="switchTab(this,'北二区')">北二区</button>
+    <button class="tbtn" data-tab="西南区" onclick="switchTab(this,'西南区')">西南区</button>
+    <button class="tbtn" data-tab="西北区" onclick="switchTab(this,'西北区')">西北区</button>
+    <div class="tab-divider"></div>
+    <button class="tbtn teal-tab" data-tab="神笔小罗" onclick="switchTab(this,'神笔小罗')">神笔小罗 ✦</button>
+    <div class="tab-divider"></div>
+    <button class="tbtn" data-tab="变化分析" onclick="switchTab(this,'变化分析')" style="color:#7B4FA0">变化分析 ↗</button>
+  </div>
+</div>
+<div id="tab-总览"    class="tab-content"></div>
+<div id="tab-东区"   class="tab-content hidden"></div>
+<div id="tab-南区"   class="tab-content hidden"></div>
+<div id="tab-中区"   class="tab-content hidden"></div>
+<div id="tab-北一区"  class="tab-content hidden"></div>
+<div id="tab-北二区"  class="tab-content hidden"></div>
+<div id="tab-西南区"  class="tab-content hidden"></div>
+<div id="tab-西北区"  class="tab-content hidden"></div>
+<div id="tab-神笔小罗" class="tab-content hidden"></div>
+<div id="tab-变化分析" class="tab-content hidden"></div>
+<div class="trend-tip" id="trendTip"></div>
+
+<script>
+
+const D={"asOf":"2026-08-31","hfThreshold":20,"allMonths":["2025-04","2025-05","2025-06","2025-07","2025-08","2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08"],"regions":{"东区":{"accounts":[{"name":"嘉妇保药剂科","resp":"朱娟","departed":false,"atype":"PLUS账号","prov":"浙江","regM":"2026-08","tot":1,"recent":1,"recent2":1,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"东区","xq_tot":1,"xq_rec":1,"xq_rec2":1,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":1},"dualPlatform":false},{"name":"晋江市医院","resp":"陈晶","departed":false,"atype":"PLUS账号","prov":"福建","regM":"2026-04","tot":159,"recent":6,"recent2":7,"last":"2026-08-06","tier":"活跃","highFreq":false,"region":"东区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"复旦大学附属肿瘤医院","resp":"王曦之","departed":false,"atype":"共享账号","prov":"上海","regM":"2025-05","tot":62,"recent":4,"recent2":4,"last":"2026-08-31","tier":"活跃","highFreq":false,"region":"东区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false}],"monthly":{"2025-04":0,"2025-05":6,"2025-06":0,"2025-07":0,"2025-08":2,"2025-09":22,"2025-10":0,"2025-11":18,"2025-12":4,"2026-01":4,"2026-02":0,"2026-03":0,"2026-04":16,"2026-05":72,"2026-06":66,"2026-07":1,"2026-08":11},"monthly_act":{"2025-04":0,"2025-05":1,"2025-06":0,"2025-07":0,"2025-08":1,"2025-09":1,"2025-10":0,"2025-11":1,"2025-12":1,"2026-01":1,"2026-02":0,"2026-03":0,"2026-04":2,"2026-05":2,"2026-06":1,"2026-07":1,"2026-08":3},"fg":{"阅读理解":30,"检索获取":64,"学术写作":121,"科研支持":7}},"南区":{"accounts":[{"name":"两湖新业极","resp":"徐晓攀","departed":false,"atype":"PLUS账号","prov":"湖南","regM":"2026-04","tot":60,"recent":7,"recent2":7,"last":"2026-08-31","tier":"活跃","highFreq":false,"region":"南区","xq_tot":7,"xq_rec":7,"xq_rec2":7,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":7},"dualPlatform":false},{"name":"广东商业及药店渠道","resp":"郑爽","departed":false,"atype":"PLUS账号","prov":"广东","regM":"2026-04","tot":6,"recent":0,"recent2":0,"last":"2026-05-27","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"柳州市工人医院","resp":"王莉","departed":false,"atype":"PLUS账号","prov":"广西","regM":"2026-04","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"玉林市第一人民医院","resp":"罗三强","departed":false,"atype":"PLUS账号","prov":"广西","regM":"2025-08","tot":2,"recent":0,"recent2":0,"last":"2025-10-10","tier":"已停用","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"海南医科大学第二附属医院","resp":"潘瑛璞","departed":false,"atype":"PLUS账号","prov":"海南","regM":"2025-06","tot":230,"recent":3,"recent2":43,"last":"2026-08-12","tier":"活跃","highFreq":false,"region":"南区","xq_tot":15,"xq_rec":0,"xq_rec2":15,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":15,"2026-08":0},"dualPlatform":false},{"name":"桂林医科大学第一附属医院","resp":"罗三强","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-06","tot":116,"recent":0,"recent2":0,"last":"2026-06-10","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"广西壮族自治区人民医院","resp":"王莉","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-06","tot":39,"recent":0,"recent2":0,"last":"2026-04-25","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"广西医科大学第一附属医院","resp":"王莉","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-05","tot":327,"recent":3,"recent2":3,"last":"2026-08-05","tier":"活跃","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"海南省人民医院","resp":"郑爽","departed":false,"atype":"共享账号","prov":"海南","regM":"2025-05","tot":39,"recent":0,"recent2":0,"last":"2026-05-27","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"广西医科大学附属肿瘤医院","resp":"王莉","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-05","tot":469,"recent":0,"recent2":2,"last":"2026-07-27","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false}],"monthly":{"2025-04":0,"2025-05":16,"2025-06":17,"2025-07":106,"2025-08":73,"2025-09":125,"2025-10":85,"2025-11":173,"2025-12":90,"2026-01":92,"2026-02":130,"2026-03":43,"2026-04":86,"2026-05":129,"2026-06":68,"2026-07":42,"2026-08":13},"monthly_act":{"2025-04":0,"2025-05":3,"2025-06":2,"2025-07":3,"2025-08":3,"2025-09":3,"2025-10":4,"2025-11":5,"2025-12":6,"2026-01":3,"2026-02":4,"2026-03":2,"2026-04":4,"2026-05":7,"2026-06":4,"2026-07":2,"2026-08":3},"fg":{"阅读理解":628,"检索获取":421,"学术写作":200,"科研支持":39}},"中区":{"accounts":[{"name":"李林军","resp":"孙楠","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":29,"recent":7,"recent2":22,"last":"2026-08-12","tier":"活跃","highFreq":false,"region":"中区","xq_tot":3,"xq_rec":0,"xq_rec2":3,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":3,"2026-08":0},"dualPlatform":false},{"name":"田雨","resp":"张琳","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":64,"recent":36,"recent2":44,"last":"2026-08-28","tier":"活跃","highFreq":true,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"王爱菊","resp":"隋骁晔","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":1,"recent":0,"recent2":1,"last":"2026-07-20","tier":"待唤醒","highFreq":false,"region":"中区","xq_tot":4,"xq_rec":0,"xq_rec2":4,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":4,"2026-08":0},"dualPlatform":false},{"name":"刘玮","resp":"隋骁晔","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":6,"recent":0,"recent2":6,"last":"2026-07-20","tier":"待唤醒","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"徐州市广济连锁药店有限公司","resp":"韩敏","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-03","tot":82,"recent":11,"recent2":24,"last":"2026-08-21","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"刘成翠","resp":"程堂军","departed":false,"atype":"PLUS账号","prov":"江苏","regM":"2026-03","tot":14,"recent":6,"recent2":7,"last":"2026-08-07","tier":"活跃","highFreq":false,"region":"中区","xq_tot":5,"xq_rec":0,"xq_rec2":5,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":5,"2026-08":0},"dualPlatform":false},{"name":"王春霞","resp":"程堂军","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-03","tot":24,"recent":0,"recent2":4,"last":"2026-07-20","tier":"待唤醒","highFreq":false,"region":"中区","xq_tot":27,"xq_rec":0,"xq_rec2":27,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":27,"2026-08":0},"dualPlatform":false},{"name":"吕静","resp":"王新旦","departed":false,"atype":"共享账号","prov":"河南","regM":"2026-03","tot":29,"recent":1,"recent2":29,"last":"2026-08-09","tier":"活跃","highFreq":false,"region":"中区","xq_tot":82,"xq_rec":12,"xq_rec2":82,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":70,"2026-08":12},"dualPlatform":false},{"name":"李洋","resp":"李洋","departed":false,"atype":"共享账号","prov":"河南","regM":"2026-03","tot":53,"recent":27,"recent2":53,"last":"2026-08-31","tier":"活跃","highFreq":true,"region":"中区","xq_tot":63,"xq_rec":44,"xq_rec2":63,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":19,"2026-08":44},"dualPlatform":false},{"name":"合肥市苏祥大药房有限公司","resp":"王海燕","departed":false,"atype":"共享账号","prov":"安徽","regM":"2026-03","tot":67,"recent":11,"recent2":17,"last":"2026-08-18","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"无锡汇华强盛医药连锁有限公司广瑞路门市部","resp":"丁刚","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":16,"recent":1,"recent2":3,"last":"2026-08-05","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"江苏省医药有限公司","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":125,"recent":32,"recent2":35,"last":"2026-08-25","tier":"活跃","highFreq":true,"region":"中区","xq_tot":3,"xq_rec":3,"xq_rec2":3,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":3},"dualPlatform":false},{"name":"江苏省中西医结合医院","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":2,"recent":0,"recent2":2,"last":"2026-07-24","tier":"已停用","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"国药控股扬州大药房连锁有限公司","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":15,"recent":4,"recent2":11,"last":"2026-08-13","tier":"活跃","highFreq":false,"region":"中区","xq_tot":2,"xq_rec":0,"xq_rec2":2,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":2,"2026-08":0},"dualPlatform":false},{"name":"华润江苏医药有限公司德信行分公司","resp":"丁刚","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":3,"recent":2,"recent2":3,"last":"2026-08-05","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"江苏账户","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2025-05","tot":441,"recent":24,"recent2":94,"last":"2026-08-31","tier":"活跃","highFreq":true,"region":"中区","xq_tot":22,"xq_rec":22,"xq_rec2":22,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":22},"dualPlatform":false},{"name":"安徽账户","resp":"王洪连","departed":false,"atype":"共享账号","prov":"安徽","regM":"2025-05","tot":331,"recent":5,"recent2":14,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"中区","xq_tot":1044,"xq_rec":768,"xq_rec2":1044,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":276,"2026-08":768},"dualPlatform":false}],"monthly":{"2025-04":0,"2025-05":29,"2025-06":2,"2025-07":13,"2025-08":2,"2025-09":93,"2025-10":85,"2025-11":134,"2025-12":94,"2026-01":30,"2026-02":26,"2026-03":164,"2026-04":111,"2026-05":67,"2026-06":83,"2026-07":202,"2026-08":167},"monthly_act":{"2025-04":0,"2025-05":1,"2025-06":1,"2025-07":1,"2025-08":1,"2025-09":2,"2025-10":2,"2025-11":2,"2025-12":2,"2026-01":2,"2026-02":3,"2026-03":10,"2026-04":10,"2026-05":7,"2026-06":5,"2026-07":16,"2026-08":13},"fg":{"阅读理解":673,"检索获取":395,"学术写作":210,"科研支持":22}},"北一区":{"accounts":[{"name":"国药控股国大药房内蒙古有限公司特药中心","resp":"霍红玉","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2026-01","tot":6,"recent":0,"recent2":0,"last":"2026-06-10","tier":"待唤醒","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"华润黑龙江哈尔滨德信行大药房","resp":"朱传娟","departed":false,"atype":"共享账号","prov":"黑龙江","regM":"2026-01","tot":49,"recent":35,"recent2":39,"last":"2026-08-19","tier":"活跃","highFreq":true,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"国药控股大药房（吉林）有限公司","resp":"慈金山","departed":false,"atype":"共享账号","prov":"吉林","regM":"2026-01","tot":118,"recent":29,"recent2":43,"last":"2026-08-31","tier":"活跃","highFreq":true,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"大连德信行润德堂大药房","resp":"王茜","departed":false,"atype":"共享账号","prov":"辽宁","regM":"2026-01","tot":30,"recent":0,"recent2":0,"last":"2026-06-24","tier":"待唤醒","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"内蒙古自治区人民医院","resp":"李卓轩","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"已停用","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"内蒙古医科大学附属医院","resp":"霍红玉","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2025-05","tot":74,"recent":17,"recent2":46,"last":"2026-08-20","tier":"活跃","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"鄂尔多斯中心医院","resp":"霍红玉","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"已停用","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false}],"monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":9,"2025-11":4,"2025-12":2,"2026-01":25,"2026-02":16,"2026-03":34,"2026-04":26,"2026-05":17,"2026-06":16,"2026-07":47,"2026-08":81},"monthly_act":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":1,"2025-11":1,"2025-12":1,"2026-01":4,"2026-02":2,"2026-03":2,"2026-04":3,"2026-05":5,"2026-06":3,"2026-07":3,"2026-08":3},"fg":{"阅读理解":212,"检索获取":61,"学术写作":1,"科研支持":3}},"北二区":{"accounts":[{"name":"长治市人民医院","resp":"","departed":false,"atype":"共享账号","prov":"","regM":"2025-10","tot":10,"recent":0,"recent2":0,"last":"2025-12-04","tier":"待唤醒","highFreq":false,"region":"北二区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"山西省人民医院","resp":"康冠华","departed":false,"atype":"共享账号","prov":"山西","regM":"2025-05","tot":83,"recent":43,"recent2":43,"last":"2026-08-30","tier":"活跃","highFreq":true,"region":"北二区","xq_tot":45,"xq_rec":45,"xq_rec2":45,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":45},"dualPlatform":false},{"name":"运城中心医院","resp":"陈骧","departed":false,"atype":"共享账号","prov":"山西","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"北二区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false}],"monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":4,"2025-10":5,"2025-11":9,"2025-12":27,"2026-01":0,"2026-02":5,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":43},"monthly_act":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":1,"2025-10":1,"2025-11":1,"2025-12":2,"2026-01":0,"2026-02":1,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":1},"fg":{"阅读理解":21,"检索获取":16,"学术写作":55,"科研支持":1}},"西南区":{"accounts":[{"name":"贵州省人民医院","resp":"钱光平","departed":false,"atype":"共享账号","prov":"贵州","regM":"2025-06","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"昆明医科大学第一附属医院","resp":"方洪燕","departed":false,"atype":"共享账号","prov":"云南","regM":"2025-05","tot":164,"recent":10,"recent2":14,"last":"2026-08-24","tier":"活跃","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"云南省第一人民医院","resp":"方洪燕","departed":false,"atype":"共享账号","prov":"云南","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"贵州医科大学附属医院","resp":"钱光平","departed":false,"atype":"共享账号","prov":"贵州","regM":"2025-05","tot":33,"recent":0,"recent2":7,"last":"2026-07-14","tier":"待唤醒","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false}],"monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":7,"2025-10":11,"2025-11":25,"2025-12":8,"2026-01":37,"2026-02":8,"2026-03":21,"2026-04":18,"2026-05":33,"2026-06":8,"2026-07":11,"2026-08":10},"monthly_act":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":2,"2025-10":1,"2025-11":1,"2025-12":2,"2026-01":2,"2026-02":2,"2026-03":1,"2026-04":2,"2026-05":2,"2026-06":2,"2026-07":2,"2026-08":1},"fg":{"阅读理解":60,"检索获取":86,"学术写作":28,"科研支持":23}},"西北区":{"accounts":[{"name":"新疆维吾尔自治区人民医院-药剂科","resp":"庞文姣","departed":false,"atype":"共享账号","prov":"新疆","regM":"2025-11","tot":12,"recent":1,"recent2":4,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"西北区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"新疆医科大学附属肿瘤医院","resp":"庞文姣","departed":false,"atype":"共享账号","prov":"新疆","regM":"2025-06","tot":677,"recent":5,"recent2":21,"last":"2026-08-22","tier":"活跃","highFreq":false,"region":"西北区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"宁夏医科大学总医院","resp":"孙晓娟","departed":false,"atype":"共享账号","prov":"宁夏","regM":"2025-05","tot":5,"recent":0,"recent2":0,"last":"2026-01-05","tier":"待唤醒","highFreq":false,"region":"西北区","xq_tot":7,"xq_rec":7,"xq_rec2":7,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":7},"dualPlatform":false}],"monthly":{"2025-04":0,"2025-05":1,"2025-06":0,"2025-07":1,"2025-08":16,"2025-09":71,"2025-10":73,"2025-11":194,"2025-12":49,"2026-01":77,"2026-02":35,"2026-03":78,"2026-04":36,"2026-05":23,"2026-06":15,"2026-07":19,"2026-08":6},"monthly_act":{"2025-04":0,"2025-05":1,"2025-06":0,"2025-07":1,"2025-08":1,"2025-09":2,"2025-10":2,"2025-11":1,"2025-12":2,"2026-01":2,"2026-02":1,"2026-03":1,"2026-04":1,"2026-05":1,"2026-06":1,"2026-07":2,"2026-08":2},"fg":{"阅读理解":366,"检索获取":259,"学术写作":30,"科研支持":39}},"总部":{"accounts":[{"name":"潘玲玲","resp":"","departed":false,"atype":"PLUS账号","prov":"","regM":"2025-11","tot":16,"recent":0,"recent2":0,"last":"2026-03-05","tier":"已停用","highFreq":false,"region":"总部","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"余登来","resp":"","departed":false,"atype":"PLUS账号","prov":"","regM":"2025-04","tot":293,"recent":1,"recent2":5,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"总部","xq_tot":19,"xq_rec":15,"xq_rec2":19,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":4,"2026-08":15},"dualPlatform":true}],"monthly":{"2025-04":63,"2025-05":63,"2025-06":8,"2025-07":8,"2025-08":23,"2025-09":44,"2025-10":20,"2025-11":1,"2025-12":23,"2026-01":32,"2026-02":3,"2026-03":10,"2026-04":1,"2026-05":4,"2026-06":1,"2026-07":4,"2026-08":1},"monthly_act":{"2025-04":1,"2025-05":1,"2025-06":1,"2025-07":1,"2025-08":1,"2025-09":1,"2025-10":1,"2025-11":1,"2025-12":1,"2026-01":1,"2026-02":1,"2026-03":1,"2026-04":1,"2026-05":1,"2026-06":1,"2026-07":1,"2026-08":1},"fg":{"阅读理解":107,"检索获取":147,"学术写作":48,"科研支持":7}},"全部":{"accounts":[{"name":"嘉妇保药剂科","resp":"朱娟","departed":false,"atype":"PLUS账号","prov":"浙江","regM":"2026-08","tot":1,"recent":1,"recent2":1,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"东区","xq_tot":1,"xq_rec":1,"xq_rec2":1,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":1},"dualPlatform":false},{"name":"晋江市医院","resp":"陈晶","departed":false,"atype":"PLUS账号","prov":"福建","regM":"2026-04","tot":159,"recent":6,"recent2":7,"last":"2026-08-06","tier":"活跃","highFreq":false,"region":"东区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"两湖新业极","resp":"徐晓攀","departed":false,"atype":"PLUS账号","prov":"湖南","regM":"2026-04","tot":60,"recent":7,"recent2":7,"last":"2026-08-31","tier":"活跃","highFreq":false,"region":"南区","xq_tot":7,"xq_rec":7,"xq_rec2":7,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":7},"dualPlatform":false},{"name":"广东商业及药店渠道","resp":"郑爽","departed":false,"atype":"PLUS账号","prov":"广东","regM":"2026-04","tot":6,"recent":0,"recent2":0,"last":"2026-05-27","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"柳州市工人医院","resp":"王莉","departed":false,"atype":"PLUS账号","prov":"广西","regM":"2026-04","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"李林军","resp":"孙楠","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":29,"recent":7,"recent2":22,"last":"2026-08-12","tier":"活跃","highFreq":false,"region":"中区","xq_tot":3,"xq_rec":0,"xq_rec2":3,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":3,"2026-08":0},"dualPlatform":false},{"name":"田雨","resp":"张琳","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":64,"recent":36,"recent2":44,"last":"2026-08-28","tier":"活跃","highFreq":true,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"王爱菊","resp":"隋骁晔","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":1,"recent":0,"recent2":1,"last":"2026-07-20","tier":"待唤醒","highFreq":false,"region":"中区","xq_tot":4,"xq_rec":0,"xq_rec2":4,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":4,"2026-08":0},"dualPlatform":false},{"name":"刘玮","resp":"隋骁晔","departed":false,"atype":"共享账号","prov":"山东","regM":"2026-03","tot":6,"recent":0,"recent2":6,"last":"2026-07-20","tier":"待唤醒","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"徐州市广济连锁药店有限公司","resp":"韩敏","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-03","tot":82,"recent":11,"recent2":24,"last":"2026-08-21","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"刘成翠","resp":"程堂军","departed":false,"atype":"PLUS账号","prov":"江苏","regM":"2026-03","tot":14,"recent":6,"recent2":7,"last":"2026-08-07","tier":"活跃","highFreq":false,"region":"中区","xq_tot":5,"xq_rec":0,"xq_rec2":5,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":5,"2026-08":0},"dualPlatform":false},{"name":"王春霞","resp":"程堂军","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-03","tot":24,"recent":0,"recent2":4,"last":"2026-07-20","tier":"待唤醒","highFreq":false,"region":"中区","xq_tot":27,"xq_rec":0,"xq_rec2":27,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":27,"2026-08":0},"dualPlatform":false},{"name":"吕静","resp":"王新旦","departed":false,"atype":"共享账号","prov":"河南","regM":"2026-03","tot":29,"recent":1,"recent2":29,"last":"2026-08-09","tier":"活跃","highFreq":false,"region":"中区","xq_tot":82,"xq_rec":12,"xq_rec2":82,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":70,"2026-08":12},"dualPlatform":false},{"name":"李洋","resp":"李洋","departed":false,"atype":"共享账号","prov":"河南","regM":"2026-03","tot":53,"recent":27,"recent2":53,"last":"2026-08-31","tier":"活跃","highFreq":true,"region":"中区","xq_tot":63,"xq_rec":44,"xq_rec2":63,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":19,"2026-08":44},"dualPlatform":false},{"name":"合肥市苏祥大药房有限公司","resp":"王海燕","departed":false,"atype":"共享账号","prov":"安徽","regM":"2026-03","tot":67,"recent":11,"recent2":17,"last":"2026-08-18","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"无锡汇华强盛医药连锁有限公司广瑞路门市部","resp":"丁刚","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":16,"recent":1,"recent2":3,"last":"2026-08-05","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"江苏省医药有限公司","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":125,"recent":32,"recent2":35,"last":"2026-08-25","tier":"活跃","highFreq":true,"region":"中区","xq_tot":3,"xq_rec":3,"xq_rec2":3,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":3},"dualPlatform":false},{"name":"江苏省中西医结合医院","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":2,"recent":0,"recent2":2,"last":"2026-07-24","tier":"已停用","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"国药控股扬州大药房连锁有限公司","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":15,"recent":4,"recent2":11,"last":"2026-08-13","tier":"活跃","highFreq":false,"region":"中区","xq_tot":2,"xq_rec":0,"xq_rec2":2,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":2,"2026-08":0},"dualPlatform":false},{"name":"华润江苏医药有限公司德信行分公司","resp":"丁刚","departed":false,"atype":"共享账号","prov":"江苏","regM":"2026-02","tot":3,"recent":2,"recent2":3,"last":"2026-08-05","tier":"活跃","highFreq":false,"region":"中区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"国药控股国大药房内蒙古有限公司特药中心","resp":"霍红玉","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2026-01","tot":6,"recent":0,"recent2":0,"last":"2026-06-10","tier":"待唤醒","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"华润黑龙江哈尔滨德信行大药房","resp":"朱传娟","departed":false,"atype":"共享账号","prov":"黑龙江","regM":"2026-01","tot":49,"recent":35,"recent2":39,"last":"2026-08-19","tier":"活跃","highFreq":true,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"国药控股大药房（吉林）有限公司","resp":"慈金山","departed":false,"atype":"共享账号","prov":"吉林","regM":"2026-01","tot":118,"recent":29,"recent2":43,"last":"2026-08-31","tier":"活跃","highFreq":true,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"大连德信行润德堂大药房","resp":"王茜","departed":false,"atype":"共享账号","prov":"辽宁","regM":"2026-01","tot":30,"recent":0,"recent2":0,"last":"2026-06-24","tier":"待唤醒","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"新疆维吾尔自治区人民医院-药剂科","resp":"庞文姣","departed":false,"atype":"共享账号","prov":"新疆","regM":"2025-11","tot":12,"recent":1,"recent2":4,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"西北区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"潘玲玲","resp":"","departed":false,"atype":"PLUS账号","prov":"","regM":"2025-11","tot":16,"recent":0,"recent2":0,"last":"2026-03-05","tier":"已停用","highFreq":false,"region":"总部","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"长治市人民医院","resp":"","departed":false,"atype":"共享账号","prov":"","regM":"2025-10","tot":10,"recent":0,"recent2":0,"last":"2025-12-04","tier":"待唤醒","highFreq":false,"region":"北二区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"玉林市第一人民医院","resp":"罗三强","departed":false,"atype":"PLUS账号","prov":"广西","regM":"2025-08","tot":2,"recent":0,"recent2":0,"last":"2025-10-10","tier":"已停用","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"海南医科大学第二附属医院","resp":"潘瑛璞","departed":false,"atype":"PLUS账号","prov":"海南","regM":"2025-06","tot":230,"recent":3,"recent2":43,"last":"2026-08-12","tier":"活跃","highFreq":false,"region":"南区","xq_tot":15,"xq_rec":0,"xq_rec2":15,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":15,"2026-08":0},"dualPlatform":false},{"name":"桂林医科大学第一附属医院","resp":"罗三强","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-06","tot":116,"recent":0,"recent2":0,"last":"2026-06-10","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"广西壮族自治区人民医院","resp":"王莉","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-06","tot":39,"recent":0,"recent2":0,"last":"2026-04-25","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"新疆医科大学附属肿瘤医院","resp":"庞文姣","departed":false,"atype":"共享账号","prov":"新疆","regM":"2025-06","tot":677,"recent":5,"recent2":21,"last":"2026-08-22","tier":"活跃","highFreq":false,"region":"西北区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"贵州省人民医院","resp":"钱光平","departed":false,"atype":"共享账号","prov":"贵州","regM":"2025-06","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"广西医科大学第一附属医院","resp":"王莉","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-05","tot":327,"recent":3,"recent2":3,"last":"2026-08-05","tier":"活跃","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"昆明医科大学第一附属医院","resp":"方洪燕","departed":false,"atype":"共享账号","prov":"云南","regM":"2025-05","tot":164,"recent":10,"recent2":14,"last":"2026-08-24","tier":"活跃","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"云南省第一人民医院","resp":"方洪燕","departed":false,"atype":"共享账号","prov":"云南","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"贵州医科大学附属医院","resp":"钱光平","departed":false,"atype":"共享账号","prov":"贵州","regM":"2025-05","tot":33,"recent":0,"recent2":7,"last":"2026-07-14","tier":"待唤醒","highFreq":false,"region":"西南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"江苏账户","resp":"李惠彧","departed":false,"atype":"共享账号","prov":"江苏","regM":"2025-05","tot":441,"recent":24,"recent2":94,"last":"2026-08-31","tier":"活跃","highFreq":true,"region":"中区","xq_tot":22,"xq_rec":22,"xq_rec2":22,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":22},"dualPlatform":false},{"name":"安徽账户","resp":"王洪连","departed":false,"atype":"共享账号","prov":"安徽","regM":"2025-05","tot":331,"recent":5,"recent2":14,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"中区","xq_tot":1044,"xq_rec":768,"xq_rec2":1044,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":276,"2026-08":768},"dualPlatform":false},{"name":"内蒙古自治区人民医院","resp":"李卓轩","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"已停用","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"内蒙古医科大学附属医院","resp":"霍红玉","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2025-05","tot":74,"recent":17,"recent2":46,"last":"2026-08-20","tier":"活跃","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"鄂尔多斯中心医院","resp":"霍红玉","departed":false,"atype":"共享账号","prov":"内蒙古","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"已停用","highFreq":false,"region":"北一区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"海南省人民医院","resp":"郑爽","departed":false,"atype":"共享账号","prov":"海南","regM":"2025-05","tot":39,"recent":0,"recent2":0,"last":"2026-05-27","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"广西医科大学附属肿瘤医院","resp":"王莉","departed":false,"atype":"共享账号","prov":"广西","regM":"2025-05","tot":469,"recent":0,"recent2":2,"last":"2026-07-27","tier":"待唤醒","highFreq":false,"region":"南区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"复旦大学附属肿瘤医院","resp":"王曦之","departed":false,"atype":"共享账号","prov":"上海","regM":"2025-05","tot":62,"recent":4,"recent2":4,"last":"2026-08-31","tier":"活跃","highFreq":false,"region":"东区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"山西省人民医院","resp":"康冠华","departed":false,"atype":"共享账号","prov":"山西","regM":"2025-05","tot":83,"recent":43,"recent2":43,"last":"2026-08-30","tier":"活跃","highFreq":true,"region":"北二区","xq_tot":45,"xq_rec":45,"xq_rec2":45,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":45},"dualPlatform":false},{"name":"运城中心医院","resp":"陈骧","departed":false,"atype":"共享账号","prov":"山西","regM":"2025-05","tot":0,"recent":0,"recent2":0,"last":"","tier":"未激活","highFreq":false,"region":"北二区","xq_tot":0,"xq_rec":0,"xq_rec2":0,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":0},"dualPlatform":false},{"name":"宁夏医科大学总医院","resp":"孙晓娟","departed":false,"atype":"共享账号","prov":"宁夏","regM":"2025-05","tot":5,"recent":0,"recent2":0,"last":"2026-01-05","tier":"待唤醒","highFreq":false,"region":"西北区","xq_tot":7,"xq_rec":7,"xq_rec2":7,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":0,"2026-08":7},"dualPlatform":false},{"name":"余登来","resp":"","departed":false,"atype":"PLUS账号","prov":"","regM":"2025-04","tot":293,"recent":1,"recent2":5,"last":"2026-08-28","tier":"活跃","highFreq":false,"region":"总部","xq_tot":19,"xq_rec":15,"xq_rec2":19,"xq_monthly":{"2025-04":0,"2025-05":0,"2025-06":0,"2025-07":0,"2025-08":0,"2025-09":0,"2025-10":0,"2025-11":0,"2025-12":0,"2026-01":0,"2026-02":0,"2026-03":0,"2026-04":0,"2026-05":0,"2026-06":0,"2026-07":4,"2026-08":15},"dualPlatform":true}],"monthly":{"2025-04":63,"2025-05":115,"2025-06":27,"2025-07":128,"2025-08":116,"2025-09":366,"2025-10":288,"2025-11":558,"2025-12":297,"2026-01":297,"2026-02":223,"2026-03":350,"2026-04":294,"2026-05":345,"2026-06":257,"2026-07":326,"2026-08":332},"monthly_act":{"2025-04":1,"2025-05":7,"2025-06":4,"2025-07":6,"2025-08":7,"2025-09":12,"2025-10":12,"2025-11":13,"2025-12":17,"2026-01":15,"2026-02":14,"2026-03":17,"2026-04":23,"2026-05":25,"2026-06":17,"2026-07":27,"2026-08":27},"fg":{"阅读理解":2097,"检索获取":1449,"学术写作":693,"科研支持":141}}},"shengbi":[{"name":"黄中杰","region":"总部","atype":"PLUS账号","regM":"2026-07","dualPlatform":false},{"name":"庞文姣","region":"西北区","atype":"PLUS账号","regM":"2026-07","dualPlatform":false},{"name":"周显玲","region":"北二区","atype":"PLUS账号","regM":"2026-07","dualPlatform":false},{"name":"罗三强","region":"南区","atype":"PLUS账号","regM":"2026-07","dualPlatform":false},{"name":"余登来","region":"总部","atype":"PLUS账号","regM":"2025-04","dualPlatform":true}],"monthly_detail":{"东区":{"ops6":1,"ops7":11,"act6":1,"act7":3,"inact6":2,"inact7":0,"avg6":1.0,"avg7":3.7,"xq6":0,"xq7":1,"valid":3},"南区":{"ops6":42,"ops7":13,"act6":2,"act7":3,"inact6":7,"inact7":6,"avg6":21.0,"avg7":4.3,"xq6":15,"xq7":7,"valid":9},"中区":{"ops6":202,"ops7":167,"act6":16,"act7":13,"inact6":0,"inact7":3,"avg6":12.6,"avg7":12.8,"xq6":406,"xq7":849,"valid":16},"北一区":{"ops6":47,"ops7":81,"act6":3,"act7":3,"inact6":2,"inact7":2,"avg6":15.7,"avg7":27.0,"xq6":0,"xq7":0,"valid":5},"北二区":{"ops6":0,"ops7":43,"act6":0,"act7":1,"inact6":3,"inact7":2,"avg6":0,"avg7":43.0,"xq6":0,"xq7":45,"valid":3},"西南区":{"ops6":11,"ops7":10,"act6":2,"act7":1,"inact6":2,"inact7":3,"avg6":5.5,"avg7":10.0,"xq6":0,"xq7":0,"valid":4},"西北区":{"ops6":19,"ops7":6,"act6":2,"act7":2,"inact6":1,"inact7":1,"avg6":9.5,"avg7":3.0,"xq6":0,"xq7":7,"valid":3},"总部":{"ops6":4,"ops7":1,"act6":1,"act7":1,"inact6":0,"inact7":0,"avg6":4.0,"avg7":1.0,"xq6":4,"xq7":15,"valid":1},"全部":{"ops6":326,"ops7":332,"act6":27,"act7":27,"inact6":17,"inact7":17,"avg6":12.1,"avg7":12.3,"xq6":425,"xq7":924,"valid":44},"区域小计":{"ops6":322,"ops7":331,"act6":26,"act7":26,"inact6":17,"inact7":17,"avg6":12.4,"avg7":12.7,"xq6":421,"xq7":909,"valid":43}},"diff_accounts":{"new_active":[{"name":"嘉妇保药剂科","region":"东区","ops6":0,"ops7":1},{"name":"两湖新业极","region":"南区","ops6":0,"ops7":7},{"name":"广西医科大学第一附属医院","region":"南区","ops6":0,"ops7":3},{"name":"复旦大学附属肿瘤医院","region":"东区","ops6":0,"ops7":4},{"name":"山西省人民医院","region":"北二区","ops6":0,"ops7":43}],"went_silent":[{"name":"王爱菊","region":"中区","ops6":1,"ops7":0},{"name":"刘玮","region":"中区","ops6":6,"ops7":0},{"name":"王春霞","region":"中区","ops6":4,"ops7":0},{"name":"贵州医科大学附属医院","region":"西南区","ops6":7,"ops7":0},{"name":"广西医科大学附属肿瘤医院","region":"南区","ops6":2,"ops7":0}],"both_active":[{"name":"晋江市医院","region":"东区","ops6":1,"ops7":6},{"name":"李林军","region":"中区","ops6":15,"ops7":7},{"name":"田雨","region":"中区","ops6":8,"ops7":36},{"name":"徐州市广济连锁药店有限公司","region":"中区","ops6":13,"ops7":11},{"name":"刘成翠","region":"中区","ops6":1,"ops7":6},{"name":"吕静","region":"中区","ops6":28,"ops7":1},{"name":"李洋","region":"中区","ops6":26,"ops7":27},{"name":"合肥市苏祥大药房有限公司","region":"中区","ops6":6,"ops7":11},{"name":"无锡汇华强盛医药连锁有限公司广瑞路门市部","region":"中区","ops6":2,"ops7":1},{"name":"江苏省医药有限公司","region":"中区","ops6":3,"ops7":32},{"name":"国药控股扬州大药房连锁有限公司","region":"中区","ops6":7,"ops7":4},{"name":"华润江苏医药有限公司德信行分公司","region":"中区","ops6":1,"ops7":2},{"name":"华润黑龙江哈尔滨德信行大药房","region":"北一区","ops6":4,"ops7":35},{"name":"国药控股大药房（吉林）有限公司","region":"北一区","ops6":14,"ops7":29},{"name":"新疆维吾尔自治区人民医院-药剂科","region":"西北区","ops6":3,"ops7":1},{"name":"海南医科大学第二附属医院","region":"南区","ops6":40,"ops7":3},{"name":"新疆医科大学附属肿瘤医院","region":"西北区","ops6":16,"ops7":5},{"name":"昆明医科大学第一附属医院","region":"西南区","ops6":4,"ops7":10},{"name":"江苏账户","region":"中区","ops6":70,"ops7":24},{"name":"安徽账户","region":"中区","ops6":9,"ops7":5},{"name":"内蒙古医科大学附属医院","region":"北一区","ops6":29,"ops7":17}],"neither":[{"name":"广东商业及药店渠道","region":"南区","ops6":0,"ops7":0},{"name":"柳州市工人医院","region":"南区","ops6":0,"ops7":0},{"name":"国药控股国大药房内蒙古有限公司特药中心","region":"北一区","ops6":0,"ops7":0},{"name":"大连德信行润德堂大药房","region":"北一区","ops6":0,"ops7":0},{"name":"长治市人民医院","region":"北二区","ops6":0,"ops7":0},{"name":"桂林医科大学第一附属医院","region":"南区","ops6":0,"ops7":0},{"name":"广西壮族自治区人民医院","region":"南区","ops6":0,"ops7":0},{"name":"贵州省人民医院","region":"西南区","ops6":0,"ops7":0},{"name":"云南省第一人民医院","region":"西南区","ops6":0,"ops7":0},{"name":"海南省人民医院","region":"南区","ops6":0,"ops7":0},{"name":"运城中心医院","region":"北二区","ops6":0,"ops7":0},{"name":"宁夏医科大学总医院","region":"西北区","ops6":0,"ops7":0}]}};
+const HF=D.hfThreshold;
+const MONTHS=D.allMonths;
+const REGIONS=['东区','南区','中区','北一区','北二区','西南区','西北区'];
+const HEADS={东区:'陈中维',南区:'李锂',中区:'龚雪龙',北一区:'杜伟',北二区:'陆洋',西南区:'窦鹏',西北区:'王殿',总部:''};
+const FG_ORDER=['阅读理解','检索获取','学术写作','科研支持'];
+const FG_COLOR={阅读理解:'#1454B8',检索获取:'#1A7844',学术写作:'#C47A14',科研支持:'#7240C8'};
+const RL='2026年8月';
+const RL2='2026年7—8月';
+const STAT_RANGE='2025-01 — 2026-08';
+
+function switchTab(btn,name){
+  document.querySelectorAll('.tbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(d=>d.classList.add('hidden'));
+  document.getElementById('tab-'+name).classList.remove('hidden');
+}
+function switchTabByName(r){
+  const btn=document.querySelector('.tbtn[data-tab="'+r+'"]');
+  if(btn) switchTab(btn,r);
+}
+
+function tip(desc,label){
+  return '<span title="'+desc+'" style="border-bottom:1px dashed var(--bdr);cursor:help">'+label+'</span>';
+}
+
+function agg(accs){
+  const stop=accs.filter(a=>a.tier==='已停用');
+  const valid=accs.filter(a=>a.tier!=='已停用');
+  const act=valid.filter(a=>a.tier==='活跃');
+  const act2=valid.filter(a=>(a.recent2||0)>0);
+  const wake=valid.filter(a=>a.tier==='待唤醒');
+  const dead=valid.filter(a=>a.tier==='未激活');
+  const hf=valid.filter(a=>a.highFreq);
+  const rec=accs.reduce((s,a)=>s+a.recent,0);
+  const rec2=accs.reduce((s,a)=>s+(a.recent2||0),0);
+  const tot=accs.reduce((s,a)=>s+a.tot,0);
+  const xqR=accs.reduce((s,a)=>s+(a.xq_rec||0),0);
+  const xqR2=accs.reduce((s,a)=>s+(a.xq_rec2||0),0);
+  const xqT=accs.reduce((s,a)=>s+(a.xq_tot||0),0);
+  return{n:accs.length,valid:valid.length,act:act.length,act2:act2.length,wake:wake.length,dead:dead.length,stop:stop.length,hf:hf.length,rec,rec2,tot,xqR,xqR2,xqT};
+}
+
+function rateClass(a,valid){
+  if(!valid) return 'rs';
+  const p=a/valid;
+  return p>=0.65?'rg':p>=0.35?'ra':'rr';
+}
+function rateBadge(str,cls){return '<span class="rbadge '+cls+'">'+str+'</span>';}
+function tierBadge(tier){
+  const cls={活跃:'t-act',待唤醒:'t-wake',未激活:'t-dead',已停用:'t-stop'}[tier]||'t-dead';
+  return '<span class="tier '+cls+'">'+tier+'</span>';
+}
+
+// ── SVG Trend with hover tooltip ────────────────────────────────────────
+let _gc=0;
+const tipEl=document.getElementById('trendTip');
+function renderTrend(el,monthly,color){
+  if(!el) return;
+  color=color||'#1454B8';
+  const id='g'+(++_gc);
+  const vals=MONTHS.map(m=>monthly[m]||0);
+  const maxV=Math.max(...vals,1);
+  const W=560,H=180,PL=38,PR=12,PT=12,PB=28;
+  const cw=W-PL-PR,ch=H-PT-PB,n=vals.length;
+  const pts=vals.map((v,i)=>({x:PL+(n>1?i*cw/(n-1):cw/2),y:PT+ch-(v/maxV*ch),v,m:MONTHS[i]}));
+  const poly=pts.map(p=>p.x+','+p.y).join(' ');
+  const area=pts[0].x+','+(PT+ch)+' '+poly+' '+pts[n-1].x+','+(PT+ch);
+  const yLines=[0,.5,1].map(r=>{
+    const yy=PT+ch*(1-r);
+    return '<line x1="'+PL+'" y1="'+yy+'" x2="'+(W-PR)+'" y2="'+yy+'" stroke="#E0E7F0" stroke-width="1"/>'+
+           '<text x="'+(PL-4)+'" y="'+(yy+4)+'" text-anchor="end" fill="#9BAABB" font-size="9">'+Math.round(maxV*r)+'</text>';
+  }).join('');
+  const xLbls=pts.map((p,i)=>(i%3!==0&&i!==n-1)?'':
+    '<text x="'+p.x+'" y="'+(H-4)+'" text-anchor="middle" fill="#9BAABB" font-size="9">'+MONTHS[i].slice(2)+'</text>').join('');
+  // hover circles (invisible large hit area)
+  const hitCircles=pts.map((p,i)=>
+    '<circle cx="'+p.x+'" cy="'+p.y+'" r="14" fill="transparent" class="trend-hit" data-v="'+p.v+'" data-m="'+p.m+'"/>').join('');
+  const dotCircles=pts.map(p=>'<circle cx="'+p.x+'" cy="'+p.y+'" r="3" fill="'+color+'" class="trend-dot"/>').join('');
+  el.innerHTML='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">'+
+    '<defs><linearGradient id="'+id+'" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0%" stop-color="'+color+'" stop-opacity=".18"/>'+
+    '<stop offset="100%" stop-color="'+color+'" stop-opacity=".01"/></linearGradient></defs>'+
+    yLines+'<polygon points="'+area+'" fill="url(#'+id+')"/>'+
+    '<polyline points="'+poly+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+
+    dotCircles+hitCircles+xLbls+'</svg>';
+  // bind hover
+  el.querySelectorAll('.trend-hit').forEach(c=>{
+    c.addEventListener('mouseenter',e=>{
+      const r=e.target.getBoundingClientRect();
+      tipEl.style.display='block';
+      tipEl.style.left=(r.left+r.width/2)+'px';
+      tipEl.style.top=(r.top-36)+'px';
+      tipEl.textContent=e.target.dataset.m+'  '+e.target.dataset.v;
+      // highlight dot
+      el.querySelectorAll('.trend-dot').forEach(d=>d.setAttribute('r','3'));
+      const idx=Array.from(el.querySelectorAll('.trend-hit')).indexOf(e.target);
+      el.querySelectorAll('.trend-dot')[idx]?.setAttribute('r','5');
+    });
+    c.addEventListener('mouseleave',()=>{
+      tipEl.style.display='none';
+      el.querySelectorAll('.trend-dot').forEach(d=>d.setAttribute('r','3'));
+    });
+  });
+}
+
+// ── Function bars ────────────────────────────────────────────────────────
+function renderFunc(el,fg){
+  if(!el) return;
+  const tot=FG_ORDER.reduce((s,g)=>s+(fg[g]||0),0);
+  el.innerHTML=FG_ORDER.map(g=>{
+    const v=fg[g]||0,pct=tot?Math.round(v/tot*100):0,bw=tot?Math.round(v/tot*100):0;
+    return '<div class="fbar-row"><div class="fbar-label">'+g+'</div>'+
+      '<div class="fbar-bg"><div class="fbar-fill" style="width:'+bw+'%;background:'+FG_COLOR[g]+'"></div></div>'+
+      '<div class="fbar-val" style="color:'+FG_COLOR[g]+'">'+v.toLocaleString()+'次 · '+pct+'%</div></div>';
+  }).join('');
+}
+
+// ── National Overview ──────────────────────────────────────────────────
+function renderNational(){
+  const accs=D.regions['全部'].accounts;
+  const{n,valid,act,act2,hf,stop,rec,rec2,tot,xqR,xqR2,xqT}=agg(accs);
+  const actPct=valid?Math.round(act/valid*100):0;
+  const act2Pct=valid?Math.round(act2/valid*100):0;
+  const hfPct=valid?Math.round(hf/valid*100):0;
+  const avg=act?(rec/act).toFixed(1):'0';
+
+  const kpis=
+    '<div class="kpi-row">'+
+    '<div class="kpi-card c-blue">'+
+    '<div class="kpi-label">'+tip('该批账户全部数量（含已停用）；有效账号 = 总 - 停用','小罗智多星账户数')+'</div>'+
+    '<div class="kpi-val">'+n+'<em> 个</em></div>'+
+    '<div class="kpi-sub warn">⚠ 其中 '+stop+' 个已停用</div>'+
+    '<div class="kpi-sub2">有效账号 = 总'+n+' - 停'+stop+' = '+valid+'人</div></div>'+
+
+    '<div class="kpi-card c-green">'+
+    '<div class="kpi-label">'+tip('近1月（'+RL+'）有实际功能操作的账户数 ÷ 有效账号；有效账号 = 总账户 - 已停用','近1月活跃账户')+'</div>'+
+    '<div class="kpi-val">'+act+'<em> / '+valid+'人 · '+actPct+'%</em></div>'+
+    '<div class="kpi-sub">有效账号 = 总'+n+' - 停'+stop+'人</div>'+
+    '<div class="kpi-sub2">近2月（'+RL2+'）活跃: '+act2+'人 · '+act2Pct+'%</div></div>'+
+
+    '<div class="kpi-card c-amber">'+
+    '<div class="kpi-label">'+tip('近1月操作 ≥ '+HF+' 次的账户（已排除停用）','高频用户')+'</div>'+
+    '<div class="kpi-val">'+hf+'<em> / '+valid+'人 · '+hfPct+'%</em></div>'+
+    '<div class="kpi-sub">近1月操作 &ge; '+HF+' 次</div></div>'+
+
+    '<div class="kpi-card c-pur">'+
+    '<div class="kpi-label">'+tip('近1月（'+RL+'）功能操作次数，已排除学习星球；均次=操作÷活跃账号数','近1月操作次数')+'</div>'+
+    '<div class="kpi-val">'+rec.toLocaleString()+'<em> 次</em></div>'+
+    '<div class="kpi-sub">活跃账号均 '+avg+' 次 &nbsp;｜&nbsp; 学习星球另计 '+xqR+' 次</div></div>'+
+
+    '<div class="kpi-card c-navy">'+
+    '<div class="kpi-label">'+tip('2025-01至今全部功能操作次数，已排除学习星球','累计操作次数')+'</div>'+
+    '<div class="kpi-val">'+tot.toLocaleString()+'<em> 次</em></div>'+
+    '<div class="kpi-sub">'+STAT_RANGE+' &nbsp;｜&nbsp; 学习星球另计 '+xqT+' 次</div></div>'+
+    '</div>';
+
+  let rows='';
+  let rAct=0,rAct2=0,rValid=0,rN=0,rWake=0,rDead=0,rStop=0,rRec=0,rRec2=0,rTot=0,rXqR=0;
+  for(const r of REGIONS){
+    const ra=D.regions[r].accounts;
+    const{n,valid,act,act2,wake,dead,stop,rec,rec2,tot,xqR}=agg(ra);
+    rAct+=act;rAct2+=act2;rValid+=valid;rN+=n;rWake+=wake;rDead+=dead;rStop+=stop;rRec+=rec;rRec2+=rec2;rTot+=tot;rXqR+=xqR;
+    const cls=rateClass(act,valid);
+    const rStr=valid?Math.round(act/valid*100)+'%':'—';
+    const stopCell=stop?'<span class="c-s">'+stop+'</span>':'—';
+    rows+='<tr class="clickable" onclick="switchTabByName(\''+r+'\')">'+
+      '<td><strong>'+r+'</strong></td><td>'+HEADS[r]+'</td>'+
+      '<td>'+n+'</td><td class="c-g">'+act+'</td><td>'+act2+'</td><td class="c-a">'+wake+'</td>'+
+      '<td class="c-r">'+dead+'</td><td>'+stopCell+'</td>'+
+      '<td>'+rateBadge(rStr,cls)+'</td>'+
+      '<td><strong>'+rec+'</strong></td>'+
+      '<td>'+rec2+'</td>'+
+      '<td>'+tot+'</td>'+
+      '<td class="c-teal">'+xqR+'</td></tr>';
+  }
+  const rCls=rateClass(rAct,rValid);
+  rows+='<tr class="subtotal"><td colspan="2">区域小计</td>'+
+    '<td>'+rN+'</td><td class="c-g">'+rAct+'</td><td>'+rAct2+'</td><td class="c-a">'+rWake+'</td>'+
+    '<td class="c-r">'+rDead+'</td><td>'+(rStop?'<span class="c-s">'+rStop+'</span>':'—')+'</td>'+
+    '<td>'+rateBadge(rValid?Math.round(rAct/rValid*100)+'%':'—',rCls)+'</td>'+
+    '<td><strong>'+rRec+'</strong></td><td>'+rRec2+'</td><td>'+rTot+'</td><td class="c-teal">'+rXqR+'</td></tr>';
+  rows+='<tr class="sep-row"><td colspan="13"></td></tr>';
+
+  const ha=D.regions['总部'].accounts;
+  const{n:hN,valid:hV,act:hA,act2:hA2,wake:hW,dead:hD,stop:hS,rec:hR,rec2:hR2,tot:hT,xqR:hXqR}=agg(ha);
+  const hCls=rateClass(hA,hV);
+  rows+='<tr class="hq"><td><strong>总部</strong></td><td>—</td>'+
+    '<td>'+hN+'</td><td class="c-g">'+hA+'</td><td>'+hA2+'</td><td class="c-a">'+hW+'</td>'+
+    '<td class="c-r">'+hD+'</td><td>'+(hS?'<span class="c-s">'+hS+'</span>':'—')+'</td>'+
+    '<td>'+rateBadge(hV?Math.round(hA/hV*100)+'%':'—',hCls)+'</td>'+
+    '<td><strong>'+hR+'</strong></td><td>'+hR2+'</td><td>'+hT+'</td><td class="c-teal">'+hXqR+'</td></tr>';
+  rows+='<tr class="sep-row"><td colspan="13"></td></tr>';
+
+  const ta=D.regions['全部'].accounts;
+  const{n:tN,valid:tV,act:tA,act2:tA2,wake:tW,dead:tD,stop:tS,rec:tR,rec2:tR2,tot:tT,xqR:tXqR}=agg(ta);
+  const tCls=rateClass(tA,tV);
+  rows+='<tr class="total"><td colspan="2">MCE 总计</td>'+
+    '<td>'+tN+'</td><td>'+tA+'</td><td>'+tA2+'</td><td>'+tW+'</td><td>'+tD+'</td>'+
+    '<td>'+(tS?tS:'—')+'</td>'+
+    '<td>'+rateBadge(tV?Math.round(tA/tV*100)+'%':'—',tCls)+'</td>'+
+    '<td><strong>'+tR+'</strong></td><td>'+tR2+'</td><td>'+tT+'</td><td>'+tXqR+'</td></tr>';
+
+  const tableHtml=
+    '<div class="card-wrap">'+
+    '<div class="sec-title">大区使用汇总</div>'+
+    '<p style="font-size:11px;color:var(--mut);margin-bottom:12px">操作次数已排除「学习星球」；学习星球单独列示 &nbsp;·&nbsp; 点击区域行跳转明细 &nbsp;·&nbsp; 列名悬停查看字段说明</p>'+
+    '<table class="nat-table"><thead><tr>'+
+    '<th>'+tip('地理销售区域','大区')+'</th>'+
+    '<th>'+tip('大区负责人','负责人')+'</th>'+
+    '<th>'+tip('全部账户数（含已停用）','总账户')+'</th>'+
+    '<th>'+tip('近1月（'+RL+'）有实际功能操作的账户数','近1月活跃')+'</th>'+
+    '<th>'+tip('近2月（'+RL2+'）有实际功能操作≥1次的账户数（6月或7月有操作即计入）','近2月活跃')+'</th>'+
+    '<th>'+tip('历史有操作，但近1月无操作的账户','待唤醒')+'</th>'+
+    '<th>'+tip('注册后从未产生任何操作的账户','未激活')+'</th>'+
+    '<th>'+tip('已从平台停用，不计入活跃率分母','已停用')+'</th>'+
+    '<th>'+tip('近1月活跃 ÷ 有效账号；有效账号 = 总账户 - 已停用（= 活跃 + 待唤醒 + 未激活）','活跃率')+'</th>'+
+    '<th>'+tip('近1月（'+RL+'）功能操作次数，已排除学习星球','近1月操作')+'</th>'+
+    '<th>'+tip('近2月（'+RL2+'）功能操作合计次数，已排除学习星球','近2月操作')+'</th>'+
+    '<th>'+tip('全部功能操作次数，已排除学习星球','累计操作')+'</th>'+
+    '<th style="color:var(--pur)">'+tip('近1月学习星球模块使用次数，单独统计，不计入主操作指标','新增单独统计：学习星球操作')+'</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+
+  const chartsHtml=
+    '<div class="charts-row">'+
+    '<div class="chart-card"><div class="chart-title">月度操作次数趋势（排除学习星球）</div><div id="nat-trend"></div></div>'+
+    '<div class="chart-card"><div class="chart-title">月度活跃账号数趋势</div><div id="nat-act-trend"></div></div>'+
+    '</div>'+
+    '<div class="chart-card-wide"><div class="chart-title">功能场景分布（全国合计）</div><div id="nat-func"></div></div>';
+
+  const foot=
+    '<div class="footnote">'+
+    '操作次数已排除「学习星球」，其单独在表格中列示 &nbsp;&middot;&nbsp; 活跃口径：实际功能操作（非登录）<br>'+
+    '「近1月」= '+RL+' &nbsp;&middot;&nbsp; 高频用户 = 近1月操作 &ge; '+HF+' 次 &nbsp;&middot;&nbsp; 双平台用户余登来同时出现在小罗智多星和神笔小罗栏<br>'+
+    '数据来源：小罗智多星平台使用分析 &amp; 平台概览'+
+    '</div>';
+
+  document.getElementById('tab-总览').innerHTML=kpis+tableHtml+chartsHtml+foot;
+  renderTrend(document.getElementById('nat-trend'),D.regions['全部'].monthly);
+  renderTrend(document.getElementById('nat-act-trend'),D.regions['全部'].monthly_act,'#2EA856');
+  renderFunc(document.getElementById('nat-func'),D.regions['全部'].fg);
+}
+
+// ── Regional detail ───────────────────────────────────────────────────
+function renderRegion(r){
+  const rd=D.regions[r];
+  const accs=rd.accounts;
+  const{n,valid,act,act2,wake,dead,stop,hf,rec,rec2,tot,xqR,xqR2}=agg(accs);
+  const actPct=valid?Math.round(act/valid*100):0;
+  const act2Pct=valid?Math.round(act2/valid*100):0;
+  const hfPct=valid?Math.round(hf/valid*100):0;
+  const cls=rateClass(act,valid);
+  const rStr=valid?actPct+'%':'—';
+  const avg=act?(rec/act).toFixed(1):'0';
+  const head=HEADS[r];
+
+  const kpi=
+    '<div class="reg-kpis">'+
+    '<div class="kpi-card c-blue">'+
+    '<div class="kpi-label">'+tip('全部账户数（含已停用）；有效账号 = 总 - 停用','本区账户')+'</div>'+
+    '<div class="kpi-val">'+n+'<em> 个</em></div>'+
+    '<div class="kpi-sub">有效账号 = 总'+n+' - 停'+stop+' = '+valid+'人</div></div>'+
+
+    '<div class="kpi-card c-green">'+
+    '<div class="kpi-label">'+tip('近1月（'+RL+'）有操作的账户 ÷ 有效账号；有效账号 = 总 - 已停用','近1月活跃')+'</div>'+
+    '<div class="kpi-val">'+act+'<em> / '+valid+'人 · '+rStr+'</em></div>'+
+    '<div class="kpi-sub">待唤醒 '+wake+' · 未激活 '+dead+'</div>'+
+    '<div class="kpi-sub2">近2月（'+RL2+'）活跃: '+act2+'人 · '+act2Pct+'%</div></div>'+
+
+    '<div class="kpi-card c-amber">'+
+    '<div class="kpi-label">'+tip('近1月操作 ≥ '+HF+' 次的账户（已排除停用）','高频用户')+'</div>'+
+    '<div class="kpi-val">'+hf+'<em> / '+valid+'人 · '+hfPct+'%</em></div>'+
+    '<div class="kpi-sub">近1月操作 &ge; '+HF+' 次</div></div>'+
+
+    '<div class="kpi-card c-pur">'+
+    '<div class="kpi-label">'+tip('近1月（'+RL+'）功能操作次数，已排除学习星球','近1月操作')+'</div>'+
+    '<div class="kpi-val">'+rec.toLocaleString()+'<em> 次</em></div>'+
+    '<div class="kpi-sub">活跃账号均 '+avg+' 次 &nbsp;｜&nbsp; 学习星球 '+xqR+' 次</div></div>'+
+
+    '<div class="kpi-card c-navy">'+
+    '<div class="kpi-label">'+tip('全部功能操作次数，已排除学习星球','累计操作')+'</div>'+
+    '<div class="kpi-val">'+tot.toLocaleString()+'<em> 次</em></div>'+
+    '<div class="kpi-sub">学习星球另计 '+xqR2+' 次（近2月）</div></div></div>';
+
+  const accRows=accs.map(a=>{
+    const isStopped=a.tier==='已停用';
+    const trCls=isStopped?' class="stopped"':'';
+    const hfBadge=a.highFreq?'<span class="hf-badge">高频</span>':'';
+    const stopMark=isStopped?'<span class="stopped-mark">停用</span>':'';
+    const dualBadge=a.dualPlatform?'<span class="dual-badge">双平台</span>':'';
+    let respHtml=a.resp?a.resp:'—';
+    if(a.resp&&a.departed) respHtml+=' <span class="dep-warn">⚠ 离职</span>';
+    const xqCell=a.xq_rec>0?'<span class="xq-val">'+a.xq_rec+'</span>':'—';
+    return '<tr'+trCls+'>'+
+      '<td>'+a.name+stopMark+dualBadge+'</td>'+
+      '<td>'+respHtml+'</td>'+
+      '<td>'+a.atype+'</td>'+
+      '<td>'+(a.prov||'—')+'</td>'+
+      '<td>'+a.regM+'</td>'+
+      '<td>'+a.recent+hfBadge+'</td>'+
+      '<td>'+a.tot+'</td>'+
+      '<td>'+(a.last||'—')+'</td>'+
+      '<td>'+tierBadge(a.tier)+'</td>'+
+      '<td>'+xqCell+'</td></tr>';
+  }).join('');
+
+  const accTable=
+    '<div class="card-wrap">'+
+    '<div class="sec-title">账户明细</div>'+
+    '<table class="acc-table"><thead><tr>'+
+    '<th>'+tip('平台注册姓名','账户名称')+'</th>'+
+    '<th>'+tip('对应MCE负责同事','负责同事')+'</th>'+
+    '<th>'+tip('账号类别（医生/内部等）','账号类型')+'</th>'+
+    '<th>'+tip('账户所在省份','省份')+'</th>'+
+    '<th>'+tip('注册年月','注册月份')+'</th>'+
+    '<th>'+tip('近1月（'+RL+'）实际功能操作次数，高频=≥'+HF+'次','近1月操作')+'</th>'+
+    '<th>'+tip('全部功能操作次数（排除学习星球）','累计操作')+'</th>'+
+    '<th>'+tip('最近一次操作日期','最近操作日期')+'</th>'+
+    '<th>'+tip('活跃/待唤醒/未激活/已停用','状态')+'</th>'+
+    '<th style="color:var(--pur)">'+tip('近1月学习星球模块使用次数，单独统计','新增单独统计：学习星球操作')+'</th>'+
+    '</tr></thead><tbody>'+accRows+'</tbody></table></div>';
+
+  const charts=
+    '<div class="charts-row">'+
+    '<div class="chart-card"><div class="chart-title">月度操作次数趋势（排除学习星球）</div><div id="trend-'+r+'"></div></div>'+
+    '<div class="chart-card"><div class="chart-title">月度活跃账号数趋势</div><div id="act-trend-'+r+'"></div></div>'+
+    '</div>'+
+    '<div class="chart-card-wide"><div class="chart-title">功能场景分布</div><div id="func-'+r+'"></div></div>';
+
+  const rateTag='<span class="rbadge '+cls+'" style="font-size:13px;padding:4px 14px">'+rStr+'&nbsp;近1月活跃</span>';
+  const headPart=head?'<span class="reg-head-lbl">负责人：'+head+'</span>':'';
+
+  document.getElementById('tab-'+r).innerHTML=
+    '<div class="reg-hdr"><div class="reg-title">'+r+'</div>'+headPart+rateTag+'</div>'+
+    kpi+accTable+charts+
+    '<div class="footnote">操作次数已排除「学习星球」，学习星球单独列于表格中 &nbsp;&middot;&nbsp; 「近1月」= '+RL+'<br>'+
+    '高频用户 = 近1月操作 &ge; '+HF+' 次 &nbsp;&middot;&nbsp; 数据来源：小罗智多星平台使用分析 &amp; 平台概览</div>';
+
+  renderTrend(document.getElementById('trend-'+r),rd.monthly);
+  renderTrend(document.getElementById('act-trend-'+r),rd.monthly_act,'#2EA856');
+  renderFunc(document.getElementById('func-'+r),rd.fg);
+}
+
+// ── 神笔小罗 ──────────────────────────────────────────────────────────
+function renderShengbi(){
+  const sbAccs=D.shengbi;
+  const rows=sbAccs.map(a=>{
+    const dual=a.dualPlatform?'<span class="dual-badge">双平台</span>':'<span class="tier t-act">专属</span>';
+    const note=a.dualPlatform?'小罗智多星使用数据详见对应账户':'数据待平台导出';
+    return '<tr>'+
+      '<td><strong>'+a.name+'</strong>'+dual+'</td>'+
+      '<td>'+a.region+'</td>'+
+      '<td>'+a.atype+'</td>'+
+      '<td>'+a.regM+'</td>'+
+      '<td style="color:var(--mut);font-size:12px">'+note+'</td>'+
+      '</tr>';
+  }).join('');
+
+  document.getElementById('tab-神笔小罗').innerHTML=
+    '<div class="sb-hdr">'+
+    '<div class="sb-hdr-title">神笔小罗 账户概览</div>'+
+    '<div class="sb-hdr-desc">神笔小罗为独立于小罗智多星的新工具，相关账户不纳入小罗智多星的活跃率、操作次数等统计。<br>'+
+    '余登来为双平台用户，其小罗智多星使用数据已包含在小罗智多星对应区域的统计中。</div>'+
+    '</div>'+
+    '<div class="card-wrap">'+
+    '<div class="sec-title teal">神笔小罗账户列表</div>'+
+    '<table class="sb-table"><thead><tr>'+
+    '<th>姓名</th><th>归属大区/团队</th><th>账号类型</th><th>注册月份</th><th>备注</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>'+
+    '<div class="card-wrap" style="background:#FFFDF0;border:1px solid #E8D86A">'+
+    '<div style="font-size:13px;color:#856A00;line-height:1.8">'+
+    '<strong>📌 数据说明</strong><br>'+
+    '· 罗三强、庞文姣、周显玲、黄中杰：神笔小罗专属账号，使用数据待平台后续导出<br>'+
+    '· 余登来：同时持有小罗智多星和神笔小罗账号，其操作数据已完整计入小罗智多星总部区域<br>'+
+    '· 随着神笔小罗使用数据积累，后续版本将补充使用分析</div></div>'+
+    '<div class="footnote">神笔小罗账户已从小罗智多星全部统计指标中剔除 &nbsp;&middot;&nbsp; 双平台用户余登来除外</div>';
+}
+
+// ── 变化分析（7月 vs 8月）────────────────────────────────────────────
+function renderDiff(){
+  const md=D.monthly_detail;
+  const da=D.diff_accounts;
+  const CMP6='2026-07', CMP7='2026-08';
+
+  function fmt1(n){ const r=Math.round(n*10)/10; return r===Math.round(r)?Math.round(r):r; }
+  function dv(v7,v6){
+    const d=v7-v6;
+    if(Math.abs(d)<0.05) return '<span class="nc delta">—</span>';
+    const cls=d>0?'up':'dn';
+    return '<span class="'+cls+' delta">'+(d>0?'+':'')+fmt1(d)+'</span>';
+  }
+
+  const g=md['全部'];
+  const kpis='<div class="diff-kpi-row">'+
+    '<div class="kpi-card c-green">'+
+    '<div class="kpi-label">月活跃账号数</div>'+
+    '<div class="kpi-val">'+g.act7+'<em> / '+g.valid+' 人</em></div>'+
+    '<div class="kpi-sub">'+CMP6+' '+g.act6+' 人 &nbsp;'+dv(g.act7,g.act6)+'</div></div>'+
+
+    '<div class="kpi-card c-pur">'+
+    '<div class="kpi-label">操作次数（排除学习星球）</div>'+
+    '<div class="kpi-val">'+g.ops7+'<em> 次</em></div>'+
+    '<div class="kpi-sub">'+CMP6+' '+g.ops6+' 次 &nbsp;'+dv(g.ops7,g.ops6)+'</div></div>'+
+
+    '<div class="kpi-card c-amber">'+
+    '<div class="kpi-label">'+tip('操作次数 ÷ 当月活跃账号数（仅统计有操作的账号）','活跃账号月均操作次数')+'</div>'+
+    '<div class="kpi-val">'+g.avg7+'<em> 次/人</em></div>'+
+    '<div class="kpi-sub">'+CMP6+' '+g.avg6+' 次/人 &nbsp;'+dv(g.avg7,g.avg6)+'</div>'+
+    '<div class="kpi-sub2" style="font-size:10px">分母=当月活跃账号数</div></div>'+
+
+    '<div class="kpi-card c-navy">'+
+    '<div class="kpi-label">当月无操作账号数</div>'+
+    '<div class="kpi-val">'+g.inact7+'<em> / '+g.valid+' 人</em></div>'+
+    '<div class="kpi-sub">'+CMP6+' '+g.inact6+' 人 &nbsp;'+dv(g.inact6,g.inact7)+'</div></div>'+
+    '</div>';
+
+  const DIFF_REGIONS=REGIONS.concat(['区域小计','总部','全部']);
+  let rows='';
+  for(const r of DIFF_REGIONS){
+    const m=md[r]||{ops6:0,ops7:0,act6:0,act7:0,inact6:0,inact7:0,avg6:0,avg7:0,xq6:0,xq7:0,valid:0};
+    const trCls=r==='全部'?' class="total"':(r==='区域小计'||r==='总部')?' class="subtotal"':'';
+    rows+='<tr'+trCls+'>'+
+      '<td class="td-left">'+r+'</td>'+
+      '<td>'+m.act6+'</td><td>'+m.act7+'</td><td>'+dv(m.act7,m.act6)+'</td>'+
+      '<td>'+m.ops6+'</td><td>'+m.ops7+'</td><td>'+dv(m.ops7,m.ops6)+'</td>'+
+      '<td>'+m.avg6+'</td><td>'+m.avg7+'</td><td>'+dv(m.avg7,m.avg6)+'</td>'+
+      '<td>'+m.inact6+'</td><td>'+m.inact7+'</td><td>'+dv(m.inact6,m.inact7)+'</td>'+
+      '<td style="color:var(--pur)">'+(m.xq6||'—')+'</td><td style="color:var(--pur)">'+(m.xq7||'—')+'</td><td>'+(m.xq6||m.xq7?dv(m.xq7,m.xq6):'<span class="nc delta">—</span>')+'</td>'+
+      '</tr>';
+  }
+
+  const diffTable='<div class="change-sec">'+
+    '<div class="sec-title">各大区 '+CMP6+' vs '+CMP7+' 对比</div>'+
+    '<p style="font-size:11px;color:var(--mut);margin-bottom:12px">同一批账户、同一口径（排除学习星球），直接对比单月使用情况</p>'+
+    '<table class="diff-table"><thead>'+
+    '<tr>'+
+      '<th class="th-left" rowspan="2">大区</th>'+
+      '<th colspan="3" style="background:#EDF7F0;color:#196E3C">月活跃账号数</th>'+
+      '<th colspan="3" style="background:#F5F0FF;color:#7240C8">操作次数</th>'+
+      '<th colspan="3" style="background:#FFF8EE;color:#A05208">'+tip('操作次数÷当月活跃账号数','活跃账号月均操作次数')+'</th>'+
+      '<th colspan="3" style="background:#F0F4FA;color:#576070">当月无操作账号</th>'+
+      '<th colspan="3" style="background:#F5F0FF;color:#7240C8;opacity:.7">学习星球（单独统计）</th>'+
+    '</tr><tr>'+
+      '<th style="background:#EDF7F0">'+CMP6+'</th><th style="background:#EDF7F0">'+CMP7+'</th><th style="background:#EDF7F0">变化</th>'+
+      '<th style="background:#F5F0FF">'+CMP6+'</th><th style="background:#F5F0FF">'+CMP7+'</th><th style="background:#F5F0FF">变化</th>'+
+      '<th style="background:#FFF8EE">'+CMP6+'</th><th style="background:#FFF8EE">'+CMP7+'</th><th style="background:#FFF8EE">变化</th>'+
+      '<th style="background:#F0F4FA">'+CMP6+'</th><th style="background:#F0F4FA">'+CMP7+'</th><th style="background:#F0F4FA">变化</th>'+
+      '<th style="background:#F5F0FF;opacity:.7">'+CMP6+'</th><th style="background:#F5F0FF;opacity:.7">'+CMP7+'</th><th style="background:#F5F0FF;opacity:.7">变化</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+
+  function accList(arr,showDelta){
+    if(!arr.length) return '<span style="color:var(--mut);font-size:12px">—</span>';
+    return arr.map(a=>{
+      const tag='<span style="font-size:11px;color:var(--mut)">（'+a.region+'）</span>';
+      const ops=showDelta?'<span style="font-size:11px;color:var(--mut)"> '+a.ops6+'→'+a.ops7+'次</span>':'';
+      return '<div style="padding:4px 0;border-bottom:1px solid #F0F4FA">'+a.name+tag+ops+'</div>';
+    }).join('');
+  }
+
+  const flows='<div class="change-sec">'+
+    '<div class="sec-title">区域账户活跃状态变化（'+CMP7+' vs '+CMP6+'）</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px">'+
+    '<div><div style="font-size:12px;font-weight:600;color:var(--g);margin-bottom:10px">▲ 新增活跃 ('+da.new_active.length+'人)</div>'+
+    '<div style="font-size:13px">'+accList(da.new_active,false)+'</div></div>'+
+    '<div><div style="font-size:12px;font-weight:600;color:var(--r);margin-bottom:10px">▼ 转为沉默 ('+da.went_silent.length+'人)</div>'+
+    '<div style="font-size:13px">'+accList(da.went_silent,false)+'</div></div>'+
+    '<div><div style="font-size:12px;font-weight:600;color:var(--blue);margin-bottom:10px">↔ 两月均活跃 ('+da.both_active.length+'人)</div>'+
+    '<div style="font-size:13px">'+accList(da.both_active,true)+'</div></div>'+
+    '<div><div style="font-size:12px;font-weight:600;color:var(--mut);margin-bottom:10px">○ 两月均无操作 ('+da.neither.length+'人)</div>'+
+    '<div style="font-size:13px">'+accList(da.neither,false)+'</div></div>'+
+    '</div></div>';
+
+  document.getElementById('tab-变化分析').innerHTML=
+    '<h2 style="font-size:18px;font-weight:700;color:var(--navy);margin-bottom:6px">总览变化分析</h2>'+
+    '<div style="font-size:12px;color:var(--mut);margin-bottom:20px">'+
+    '基于08版数据，同口径对比 '+CMP6+' vs '+CMP7+' 单月使用情况 &nbsp;&middot;&nbsp; 有效账户已排除停用账号</div>'+
+    kpis+diffTable+flows+
+    '<div class="footnote">操作次数均已排除「学习星球」 &nbsp;&middot;&nbsp; 绿色/红色数值代表正向/负向变化 &nbsp;&middot;&nbsp; 均次 = 操作次数 ÷ 当月活跃账号数</div>';
+}
+
+// ── Init ──────────────────────────────────────────────────────────────
+renderNational();
+REGIONS.forEach(r=>renderRegion(r));
+renderShengbi();
+renderDiff();
+
+</script>
+</body>
+</html>
